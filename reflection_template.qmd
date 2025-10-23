@@ -1,6 +1,7 @@
 ---
 title: "STAT 331 Portfolio"
 author: "Arturo Ordaz-Gutierrez"
+theme: pulse
 format: html 
 embed-resources: true
 layout: margin-left
@@ -22,22 +23,48 @@ execute:
 
 ```{r}
 #| label: wd-1-csv-1
+# Lab 2: Question 1
 
+surveys <- read_csv(here::here("Week2", "Lab2", "surveys.csv"))
 ```
 
 -   `csv` Example 2
 
 ```{r}
 #| label: wd-1-csv-2
+# Lab 3: Question 2
 
+teacher_evals <- read_csv(here::here('Week3', 'Lab3', 'teacher_evals.csv'))
 ```
 
 -   `xlsx`
 
 ```{r}
 #| label: wd-1-xlsx
+# Week 2: Check-in 2.2
 
+ages <- read_xlsx(here::here("Week2",
+                             "Check-in",
+                             "Ages_Data",
+                             "ages.xlsx"),
+                  sheet = "ages", 
+                  skip  = 0, 
+                  n_max = 6)
 ```
+
+-   `txt`
+
+```{r}
+#| label: wd-1-txt
+# Week 2: Check-in 2.3
+
+ages_space <- read_table(here::here("Week2",
+                                    "Check-in",
+                                    "Ages_Data",
+                                    "ages_space.txt"),
+                         col_names = TRUE)
+```
+
 
 **WD-2: I can select necessary columns from a dataset.**
 
@@ -45,7 +72,19 @@ execute:
 
 ```{r}
 #| label: wd-2-ex-1
+# Lab 3: Question 5
 
+teacher_evals_clean <- teacher_evals |>
+  rename(sex = gender) |>
+  filter(no_participants >= 10) |>
+  mutate(
+    teacher_id   = as.character(teacher_id),
+    course_id    = as.character(course_id)
+  ) |>
+  select(
+    course_id, teacher_id, question_no, no_participants, resp_share,
+    SET_score_avg, percent_failed_cur, academic_degree, seniority, sex
+  )
 ```
 
 -   Example removing specified columns
@@ -68,21 +107,47 @@ execute:
 
 ```{r}
 #| label: wd-3-numeric-ex-1
+# Lab 3: Question 5
 
+teacher_evals_clean <- teacher_evals |>
+  rename(sex = gender) |>
+  filter(no_participants >= 10) |>
+  mutate(
+    teacher_id   = as.character(teacher_id),
+    course_id    = as.character(course_id)
+  ) |>
+  select(
+    course_id, teacher_id, question_no, no_participants, resp_share,
+    SET_score_avg, percent_failed_cur, academic_degree, seniority, sex
+  )
 ```
 
 -   Numeric Example 2
 
 ```{r}
 #| label: wd-3-numeric-ex-1
+# Lab 4: Question 5
 
+ca_childcare |>
+  filter(study_year %in% c(2008, 2018)) |>
+  group_by(census_region, study_year) |>
+  summarise(median_income_2018 = median(mhi_2018, na.rm = TRUE), .groups = "drop") |>
+  pivot_wider(names_from = study_year, 
+              values_from = median_income_2018, 
+              names_prefix = "Year: ") |>
+  arrange(desc('Year: 2018'))
 ```
 
 -   Character Example 1 (any context)
 
 ```{r}
 #| label: wd-3-character
+# Lab 4: Question 2
 
+ca_childcare <- counties |>
+  filter(state_name == "California") |>
+  inner_join(childcare_costs,
+             by = join_by(county_fips_code == county_fips_code))
 ```
 
 -   Character Example 2 (example must use functions from **stringr**)
