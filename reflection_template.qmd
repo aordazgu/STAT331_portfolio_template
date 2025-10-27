@@ -154,14 +154,33 @@ ca_childcare <- counties |>
 
 ```{r}
 #| label: wd-3-string
+# Lab 5: Identify the Two Witnesses 
 
+# Witness 1: Last house on Northwestern Dr
+witness1 <- person |>
+  filter(address_street_name == "Northwestern Dr") |>
+  arrange(desc(address_number)) |>
+  head(1)
+
+# Witness 2: Annabel on Franklin Ave
+witness2 <- person |>
+  filter(str_detect(name, "Annabel"),
+         address_street_name == "Franklin Ave")
+
+witness1
+witness2
 ```
 
 -   Date (example must use functions from **lubridate**)
 
 ```{r}
 #| label: wd-3-date
+# Lab 5: Gym Activity
 
+get_fit_now_check_in |>
+  mutate(check_in_date = ymd(check_in_date)) |>
+  filter(membership_id %in% suspect_member$id,
+         check_in_date == ymd("2018-01-09"))
 ```
 
 **WD-4: I can modify existing variables and create new variables in a dataframe for a *variety* of data types (e.g., numeric, integer, character, factor, date).**
@@ -170,42 +189,96 @@ ca_childcare <- counties |>
 
 ```{r}
 #| label: wd-4-numeric-ex-1
+# Lab 3: Question 7
 
+teacher_evals_clean |>
+  distinct(teacher_id, .keep_all = TRUE) |>
+  count(academic_degree, sex) |>
+  mutate(percent = round(100 * n / sum(n), 1)) |>
+  arrange(desc(percent))
 ```
 
 -   Numeric Example 2
 
 ```{r}
 #| label: wd-4-numeric-ex-2
+# Lab 5: Find Who Hired Jeremy Bowers
 
+concert_attendees <- facebook_event_checkin |>
+  filter(event_name == "SQL Symphony Concert",
+         str_starts(date, "201712")) |>
+  count(person_id, name = "n_checkins") |>
+  filter(n_checkins >= 3)
+
+concert_attendees
 ```
 
 -   Factor Example 1 (renaming levels)
 
 ```{r}
 #| label: wd-4-factor-ex-1
+# Lab 4: Question 4
 
+ca_childcare <- ca_childcare |> 
+  mutate(
+    county_name = str_remove(county_name, " County"),
+    census_region = fct_collapse(
+      .f = county_name,
+      superior      = superior_counties,
+      north_coast   = north_coast_counties,
+      san_francisco = san_fran_counties,
+      n_san_joaquin = n_san_joaquin_counties,
+      central_coast = central_coast_counties,
+      s_san_joaquin = s_san_joaquin_counties,
+      inland        = inland_counties,
+      la            = la_county,
+      orange        = orange_county,
+      san_diego_imperial = san_diego_imperial_counties
+    )
+  )
 ```
 
 -   Factor Example 2 (reordering levels)
 
 ```{r}
 #| label: wd-4-factor-ex-2
+# Lab 5: Find Initial Suspect
 
+suspect_member <- get_fit_now_member |>
+  mutate(
+    # Convert membership_status to an ordered factor
+    membership_status = factor(
+      membership_status,
+      levels = c("bronze", "silver", "gold"),
+      ordered = TRUE
+    )
+  ) |>
+  filter(str_starts(id, "48Z"),
+         membership_status == "gold")
 ```
 
 -   Character (example must use functions from **stringr**)
 
 ```{r}
 #| label: wd-4-string
+# Lab 5: Identify the Two Witnesses
 
+filter(str_detect(name, "Annabel"),
+       address_street_name == "Franklin Ave")
 ```
 
 -   Date (example must use functions from **lubridate**)
 
 ```{r}
 #| label: wd-4-date
+# lab 5: Find Initial Suspect
 
+suspect_checkin <- get_fit_now_check_in |>
+  mutate(check_in_date = ymd(check_in_date)) |>
+  filter(membership_id %in% suspect_member$id,
+         check_in_date == ymd("2018-01-09"))
+
+suspect_checkin
 ```
 
 **WD-5: I can use mutating joins to combine multiple dataframes.**
@@ -214,7 +287,12 @@ ca_childcare <- counties |>
 
 ```{r}
 #| label: wd-5-left-ex-1
+# Lab 4: Question 3
 
+ca_childcare <- ca_childcare |>
+  left_join(tax_rev,
+            by = join_by(county_name == entity_name,
+                         study_year == year))
 ```
 
 -   `right_join()` Example 1
@@ -228,21 +306,33 @@ ca_childcare <- counties |>
 
 ```{r}
 #| label: wd-5-left-right-ex-2
+#Lab 5: Joining to Find Specific Person
 
+suspect_pool <- concert_attendees |>
+  left_join(person, by = c("person_id" = "id")) |>
+  left_join(drivers_license, by = c("license_id" = "id"))
 ```
 
 -   `inner_join()` Example 1
 
 ```{r}
 #| label: wd-5-inner-ex-1
+# Lab 4: Question 2
 
+ca_childcare <- counties |>
+  filter(state_name == "California") |>
+  inner_join(childcare_costs,
+             by = join_by(county_fips_code == county_fips_code))
 ```
 
 -   `inner_join()` Example 2
 
 ```{r}
 #| label: wd-5-inner-ex-2
+# Lab 5: Interview Initial Suspect
 
+suspect_interview <- suspect |>
+  inner_join(interview, by = c("person_id" = "person_id"))
 ```
 
 **WD-6: I can use filtering joins to filter rows from a dataframe.**
@@ -267,14 +357,33 @@ ca_childcare <- counties |>
 
 ```{r}
 #| label: wd-7-long
-
+# Lab 3: Question 8
+teacher_evals_clean |>
+  filter(if_any(everything(), is.na)) |>
+  summarize(across(everything(), ~ sum(is.na(.))), .groups = "drop") |>
+  pivot_longer(everything(), names_to = "variable", values_to = "num_missing") |>
+  filter(num_missing > 0)
 ```
 
 -   `pivot_wider()`
 
 ```{r}
 #| label: wd-7-wide
+# Lab 4: Question 5
 
+income_2008_2018 <- ca_childcare |>
+  filter(study_year %in% c(2008, 2018)) |>
+  group_by(census_region, study_year) |>
+  summarise(
+    median_income_2018_dollars = median(mhi_2018, na.rm = TRUE),
+    .groups = "drop"
+  ) |>
+  pivot_wider(
+    names_from = study_year,
+    values_from = median_income_2018_dollars,
+    names_prefix = "Median income (2018 dollars) - "
+  ) |>
+  arrange(desc(`Median income (2018 dollars) - 2018`))
 ```
 
 ## Reproducibility
@@ -295,14 +404,92 @@ The following assignments satisfy the above criteria:
 
 ```{r}
 #| label: r-2-1
+# Lab 4: Question 7
 
+library(RColorBrewer)
+
+recreate_plot <- ca_childcare |> 
+  select(
+    county_name, 
+    study_year, 
+    mc_infant, 
+    mc_toddler, 
+    mc_preschool, 
+    census_region
+  ) |>
+  pivot_longer(
+    cols = mc_infant:mc_preschool,
+    names_to = "age",
+    values_to = "price"
+  ) |> 
+  mutate(
+    age = case_when(
+      age == "mc_infant" ~ "Infant",
+      age == "mc_toddler" ~ "Toddler",
+      age == "mc_preschool" ~ "Preschool",
+      TRUE ~ age
+    ),
+    census_region = fct_reorder2(
+      .f = census_region, 
+      .x = study_year, 
+      .y = price, 
+      .desc = TRUE
+    )
+  )
+
+mycolors <- colorRampPalette(brewer.pal(7, "Accent"))(10)
+
+ggplot(
+  data = recreate_plot,
+  mapping = aes(x = study_year, y = price, color = census_region)
+) +
+  geom_point(size = 0.75, alpha = 0.6) +
+  geom_smooth(method = "loess", linewidth = 0.75, se = TRUE) +
+  facet_wrap(~factor(age, levels = c("Infant", "Toddler", "Preschool"))) +
+  scale_y_continuous(labels = scales::dollar_format(prefix = "$", big.mark = ",")) +
+  scale_x_continuous(
+    breaks = seq(2008, 2018, by = 2),
+    limits = c(2008, 2018)
+  ) +
+  scale_color_manual(values = mycolors) +
+  labs(
+    title = "Weekly Median Price for Center-Based Childcare ($)",
+    x = "Study Year",
+    y = NULL,
+    color = "California Region"
+  ) +
+  theme_bw(base_size = 10) +
+  theme(
+    aspect.ratio = 1.25,
+    axis.text.x = element_text(angle = 30)
+  )
 ```
 
 -   Example of **dplyr** pipeline
 
 ```{r}
 #| label: r-2-2
+# Lab 3: Question 5
 
+teacher_evals_clean <- teacher_evals |>
+  rename(sex = gender) |>
+  filter(no_participants >= 10) |>
+  mutate(
+    teacher_id = as.character(teacher_id),
+    course_id  = as.character(course_id)
+  ) |>
+  select(
+    course_id,
+    teacher_id,
+    question_no,
+    no_participants,
+    resp_share,
+    SET_score_avg,
+    percent_failed_cur,
+    academic_degree,
+    seniority,
+    sex
+  )
 ```
 
 -   Example of function formatting
@@ -318,7 +505,28 @@ The following assignments satisfy the above criteria:
 
 ```{r}
 #| label: r-3-example
+# Lab 3: Question 5
 
+#| label: data-cleaning
+teacher_evals_clean <- teacher_evals |>
+  rename(sex = gender) |>
+  filter(no_participants >= 10) |>
+  mutate(
+    teacher_id = as.character(teacher_id),
+    course_id = as.character(course_id)
+  ) |>
+  select(
+    course_id, 
+    teacher_id, 
+    question_no, 
+    no_participants, 
+    resp_share,
+    SET_score_avg, 
+    percent_failed_cur, 
+    academic_degree, 
+    seniority, 
+    sex
+  )
 ```
 
 -   Example (function stops)
@@ -336,28 +544,122 @@ The following assignments satisfy the above criteria:
 
 ```{r}
 #| label: dvs-1-num
+# Lab 4: Question 8
 
+ggplot(
+  data = ca_childcare,
+  mapping = aes(x = mhi_2018, y = mc_infant)
+) +
+  geom_point(
+    alpha = 0.5,
+    color = "darkgreen"
+  ) +
+  geom_smooth(
+    method = "lm",
+    se = TRUE,
+    color = "gold"
+  ) +
+  labs(
+    x = "Median household income (2018 dollars)",
+    y = "Median weekly price (infant, center-based)",
+    title = "Income vs. Infant Center-Based Weekly Price (CA, 2018)"
+  ) +
+  theme_bw(base_size = 10)
 ```
 
 -   At least one numeric variable and one categorical variable
 
 ```{r}
 #| label: dvs-2-num-cat
+# lab 4: Question 7
 
+ggplot(
+  data = recreate_plot,
+  mapping = aes(x = study_year, y = price, color = census_region)
+) +
+  geom_point(
+    size = 0.75,
+    alpha = 0.6
+  ) +
+  geom_smooth(
+    linewidth = 0.75,
+    se = TRUE
+  ) +
+  facet_wrap(
+    ~factor(age, c("Infant", "Toddler", "Preschool"))
+  ) +
+  scale_y_continuous(
+    labels = scales::dollar_format(prefix = "$", big.mark = ",")
+  ) +
+  scale_x_continuous(
+    breaks = seq(2008, 2018, by = 2),
+    limits = c(2008, 2018)
+  ) +
+  scale_color_manual(
+    values = mycolors
+  ) +
+  labs(
+    title = "Weekly Median Price for Center-Based Childcare ($)",
+    x = "Study Year",
+    y = NULL,
+    color = "California Region"
+  ) +
+  theme_bw(base_size = 10) +
+  theme(
+    aspect.ratio = 1.25,
+    axis.text.x = element_text(angle = 30)
+  )
 ```
 
 -   At least two categorical variables
 
 ```{r}
 #| label: dvs-2-cat
+# Lab 3: Question 7
 
+ggplot(
+  data = teacher_evals_clean |>
+    distinct(teacher_id, .keep_all = TRUE) |>
+    count(academic_degree, sex),
+  mapping = aes(x = academic_degree, y = n, fill = sex)
+) +
+  geom_col(
+    position = "dodge"
+  ) +
+  labs(
+    title = "Count of Instructors by Degree and Sex",
+    x = "Academic Degree",
+    y = "Number of Instructors",
+    fill = "Sex"
+  ) +
+  theme_bw(base_size = 10)
 ```
 
 -   Dates (time series plot)
 
 ```{r}
 #| label: dvs-2-date
+# lab 4: Question 7
 
+ggplot(
+  data = recreate_plot,
+  mapping = aes(x = study_year, y = price, color = census_region)
+) +
+  geom_line() +
+  geom_smooth(
+    se = TRUE,
+    alpha = 0.2
+  ) +
+  scale_x_continuous(
+    breaks = seq(2008, 2018, by = 2)
+  ) +
+  labs(
+    x = "Study Year",
+    y = "Median Weekly Price ($)",
+    title = "Change in Childcare Costs Over Time by Region",
+    color = "Region"
+  ) +
+  theme_bw(base_size = 10)
 ```
 
 **DVS-2: I use plot modifications to make my visualization clear to the reader.**
@@ -366,35 +668,122 @@ The following assignments satisfy the above criteria:
 
 ```{r}
 #| label: dvs-2-ex-1
+# Lab 4: Question 7
 
+ggplot(
+  data = recreate_plot,
+  mapping = aes(x = study_year, y = price, color = census_region)
+) +
+  geom_point(
+    size = 0.75,
+    alpha = 0.6
+  ) +
+  geom_smooth(
+    linewidth = 0.75,
+    se = TRUE
+  ) +
+  facet_wrap(
+    ~factor(age, c("Infant", "Toddler", "Preschool"))
+  ) +
+  scale_y_continuous(
+    labels = scales::dollar_format(prefix = "$", big.mark = ",")
+  ) +
+  scale_x_continuous(
+    breaks = seq(2008, 2018, by = 2),
+    limits = c(2008, 2018)
+  ) +
+  scale_color_manual(
+    values = mycolors
+  ) +
+  labs(
+    title = "Weekly Median Price for Center-Based Childcare ($)",
+    x = "Study Year",
+    y = NULL,
+    color = "California Region"
+  ) +
+  theme_bw(base_size = 10) +
+  theme(
+    aspect.ratio = 1.25,
+    axis.text.x = element_text(angle = 30)
+  )
 ```
 
 -   I can modify my colors to be accessible to anyone's eyes
 
 ```{r}
 #| label: dvs-2-ex-2
+# Lab 4: Question 7
 
+library(RColorBrewer)
+mycolors <- colorRampPalette(brewer.pal(7, "Accent"))(10)
 ```
 
 -   I can modify my plot titles to clearly communicate the data context
 
 ```{r}
 #| label: dvs-2-ex-3
+# Lab 4: Question 8
 
+ggplot(
+  data = ca_childcare,
+  mapping = aes(x = mhi_2018, y = mc_infant)
+) +
+  geom_point(
+    alpha = 0.5,
+    color = "darkgreen"
+  ) +
+  geom_smooth(
+    method = "lm",
+    se = TRUE,
+    color = "gold"
+  ) +
+  labs(
+    title = "Income vs. Infant Center-Based Weekly Price (CA, 2018)",
+    x = "Median household income (2018 dollars)",
+    y = "Median weekly price (infant, center-based)"
+  ) +
+  theme_bw(base_size = 10)
 ```
 
 -   I can modify the text in my plot to be more readable
 
 ```{r}
 #| label: dvs-2-ex-4
+# Lab 4: Question 7
 
+theme(
+  aspect.ratio = 1.25,
+  axis.text.x = element_text(angle = 30)
+)
 ```
 
 -   I can reorder my legend to align with the colors in my plot
 
 ```{r}
 #| label: dvs-2-ex-5
+# Lab 4: Question 7
 
+recreate_plot <- ca_childcare |>
+  select(county_name, study_year, mc_infant, mc_toddler, mc_preschool, census_region) |>
+  pivot_longer(
+    cols = mc_infant:mc_preschool,
+    names_to = "age",
+    values_to = "price"
+  ) |>
+  mutate(
+    age = case_when(
+      age == "mc_infant" ~ "Infant",
+      age == "mc_toddler" ~ "Toddler",
+      age == "mc_preschool" ~ "Preschool",
+      TRUE ~ age
+    ),
+    census_region = fct_reorder2(
+      .f = census_region,
+      .x = study_year,
+      .y = price,
+      .desc = TRUE
+    )
+  )
 ```
 
 **DVS-3: I show creativity in my visualizations**
@@ -433,14 +822,28 @@ The following assignments satisfy the above criteria:
 
 ```{r}
 #| label: dvs-4-summarize
+# Lab 3: Question 7
 
+teacher_evals_clean |>
+  distinct(teacher_id, .keep_all = TRUE) |>
+  summarize(
+    total_instructors = n(),
+    avg_seniority = mean(seniority, na.rm = TRUE)
+  )
 ```
 
 -   Example using `across()`
 
 ```{r}
 #| label: dvs-4-across
+# Lab 3: Question 8
 
+teacher_evals_clean |>
+  filter(if_any(everything(), is.na)) |>
+  summarize(
+    across(everything(), ~ sum(is.na(.))),
+    .groups = "drop"
+  )
 ```
 
 **DVS-5: I can find summaries of variables across multiple groups.**
