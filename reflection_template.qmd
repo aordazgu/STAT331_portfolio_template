@@ -844,6 +844,7 @@ teacher_evals_clean |>
     across(everything(), ~ sum(is.na(.))),
     .groups = "drop"
   )
+
 ```
 
 **DVS-5: I can find summaries of variables across multiple groups.**
