@@ -25,7 +25,13 @@ execute:
 #| label: wd-1-csv-1
 # Lab 2: Question 1
 
-surveys <- read_csv(here::here("Week2", "Lab2", "surveys.csv"))
+surveys <- readr::read_csv(
+  file = here::here(
+    "Week2",
+    "Lab2",
+    "surveys.csv"
+  )
+)
 ```
 
 -   `csv` Example 2
@@ -299,7 +305,12 @@ ca_childcare <- ca_childcare |>
 
 ```{r}
 #| label: wd-5-right
+# Lab 4: Question 3
 
+ca_childcare <- tax_rev |>
+  right_join(ca_childcare,
+    by = join_by(entity_name == county_name,
+                 year == study_year))
 ```
 
 -   `left_join()` **or** `right_join()` Example 2
@@ -309,8 +320,18 @@ ca_childcare <- ca_childcare |>
 #Lab 5: Joining to Find Specific Person
 
 suspect_pool <- concert_attendees |>
-  left_join(person, by = c("person_id" = "id")) |>
-  left_join(drivers_license, by = c("license_id" = "id"))
+  left_join(
+    y = person,
+    by = join_by(
+      person_id == id
+    )
+  ) |>
+  left_join(
+    y = drivers_license,
+    by = join_by(
+      license_id == id
+    )
+  )
 ```
 
 -   `inner_join()` Example 1
@@ -853,14 +874,30 @@ teacher_evals_clean |>
 
 ```{r}
 #| label: dvs-5-1
+# Lab 3: Question 11
 
+one_year_fail <- teacher_evals_clean |>
+  filter(seniority == 1) |>
+  group_by(teacher_id) |>
+  summarize(
+    avg_fail = mean(percent_failed_cur, na.rm = TRUE),
+    .groups = "drop"
+  )
 ```
 
 -   Example 2
 
 ```{r}
 #| label: dvs-5-2
+# Lab 4: Question 5
 
+income_2008_2018 <- ca_childcare |>
+  filter(study_year %in% c(2008, 2018)) |>
+  group_by(census_region, study_year) |>
+  summarise(
+    median_income_2018_dollars = median(mhi_2018, na.rm = TRUE),
+    .groups = "drop"
+  )
 ```
 
 **DVS-6: I can create tables which make my summaries clear to the reader.**
@@ -869,7 +906,24 @@ teacher_evals_clean |>
 
 ```{r}
 #| label: dvs-6-ex-1
+# Lab 4: Challenge 4
 
+summary_tbl |>
+  mutate(
+    study_year = as.character(study_year)
+  ) |>
+  mutate(
+    across(
+      .cols = c(center, family, gap),
+      .fns = scales::dollar
+    )
+  ) |>
+  rename(
+    Year = study_year,
+    `Center-Based Care ($)` = center,
+    `Family/In-Home Care ($)` = family,
+    `Price Gap ($)` = gap
+  )
 ```
 
 -   I can modify the text in my table to be more readable (e.g., bold face for column headers)
@@ -883,7 +937,25 @@ teacher_evals_clean |>
 
 ```{r}
 #| label: dvs-6-ex-3
+# Lab 3: Question 7
 
+teacher_evals_clean |>
+  distinct(teacher_id, .keep_all = TRUE) |>
+  count(academic_degree, sex, name = "Instructor_Count") |>
+  mutate(
+    Percent = round((Instructor_Count / sum(Instructor_Count)) * 100, 1)
+  ) |>
+  arrange(desc(Percent)) |>
+  rename(
+    Academic_Degree = academic_degree,
+    Sex = sex
+  ) |>
+  select(
+    Academic_Degree,
+    Sex,
+    Instructor_Count,
+    Percent
+  )
 ```
 
 **DVS-7: I show creativity in my tables.**
@@ -910,14 +982,38 @@ teacher_evals_clean |>
 
 ```{r}
 #| label: pe-1-one-call
+# Lab 4: Question 7
 
+recreate_plot <- ca_childcare |>
+  select(
+    county_name,
+    study_year,
+    mc_infant,
+    mc_toddler,
+    mc_preschool,
+    census_region
+  ) |>
+  pivot_longer(
+    cols = c(mc_infant, mc_toddler, mc_preschool),
+    names_to = "age",
+    values_to = "price"
+  )
 ```
 
 -   using `across()`
 
 ```{r}
 #| label: pe-1-across
+# Lab 4: Challenge 4
 
+summary_tbl |>
+  mutate(
+    study_year = as.character(study_year),
+    across(
+      .cols = c(center, family, gap),
+      .fns = scales::dollar
+    )
+  )
 ```
 
 -   using functions from the `map()` family
@@ -956,7 +1052,25 @@ teacher_evals_clean |>
 
 ```{r}
 #| label: pe-3-across
+# Lab 4: Challenge 4
 
+summary_tbl |>
+  mutate(
+    study_year = as.character(study_year)
+  ) |>
+  mutate(
+    across(
+      .cols = c(center, family, gap),
+      .fns = scales::dollar
+    )
+  ) |>
+  rename(
+    Year = study_year,
+    `Center-Based Care ($)` = center,
+    `Family/In-Home Care ($)` = family,
+    `Price Gap ($)` = gap
+  ) |>
+  arrange(Year)
 ```
 
 -   using a `map()` function with **one** input (e.g., `map()`, `map_chr()`, `map_dbl()`, etc.)
@@ -979,14 +1093,52 @@ teacher_evals_clean |>
 
 ```{r}
 #| label: pe-4-1
+# Lab 4: Question 3
 
+ca_childcare <- ca_childcare |>
+  left_join(tax_rev,
+            by = join_by(county_name == entity_name,
+                         study_year == year))
 ```
 
 -   I can connect a data wrangling pipeline into a `ggplot()`
 
 ```{r}
 #| label: pe-4-2
+# Lab 4: Challenge 4
 
+ca_childcare |>
+  summarise(
+    gap = median(mc_infant - mfcc_infant, na.rm = TRUE),
+    .by = c(census_region, study_year)
+  ) |>
+  ggplot(
+    data = _,
+    mapping = aes(
+      x = study_year,
+      y = gap,
+      color = census_region
+    )
+  ) +
+  geom_line() +
+  geom_smooth(
+    se = TRUE,
+    alpha = 0.1
+  ) +
+  scale_y_continuous(
+    labels = dollar
+  ) +
+  scale_x_continuous(
+    breaks = seq(2008, 2018, 2)
+  ) +
+  labs(
+    title = "Infant Care Price Gap in California: Center vs Family (by Census Region)",
+    subtitle = "Median weekly price gap (Center − Family), 2008–2018",
+    x = "Year",
+    y = "Median gap (USD)",
+    color = "Region"
+  ) +
+  theme_bw()
 ```
 
 ## Data Simulation & Statisical Models
@@ -1013,21 +1165,46 @@ teacher_evals_clean |>
 
 ```{r}
 #| label: dsm-2-1
+# Lab 1: Comparing Supplement Methods with a t-test
 
+t.test(
+  formula = len ~ supp,
+  data = ToothGrowth,
+  var.equal = FALSE,
+  alternative = "two.sided"
+)
 ```
 
 -   Example 2
 
 ```{r}
 #| label: dsm-2-2
+# Lab 2: Question 17
 
+species_mod <- aov(
+  formula = weight ~ species,
+  data = surveys
+)
+
+summary(
+  object = species_mod
+)
 ```
 
 -   Example 3
 
 ```{r}
 #| label: dsm-2-3
+# Lab 4: Question 9
 
+reg_mod1 <- lm(
+  formula = mc_infant ~ mhi_2018,
+  data = ca_childcare
+)
+
+summary(
+  object = reg_mod1
+)
 ```
 
 ## Revising My Thinking
