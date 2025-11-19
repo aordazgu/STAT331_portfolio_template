@@ -97,6 +97,19 @@ teacher_evals_clean <- teacher_evals |>
 
 ```{r}
 #| label: wd-2-ex-2
+# Lab 7: Question 3
+
+missing_summary <- fish |>
+  group_by(year, section, trip) |>
+  summarise(
+    across(everything(), \(x) sum(is.na(x))),
+    .groups = "drop"
+  ) |>
+  pivot_longer(
+    cols      = -c(year, section, trip),
+    names_to  = "variable",
+    values_to = "num_missing"
+  )
 
 ```
 
@@ -104,7 +117,27 @@ teacher_evals_clean <- teacher_evals |>
 
 ```{r}
 #| label: wd-2-ex-3
+# Lab 3: Question 8
 
+teacher_evals_clean |>
+  filter(if_any(ends_with("_avg"), ~ is.na(.x))) |>
+  summarize(
+    across(ends_with("_avg"), ~ sum(is.na(.))),
+    .groups = "drop"
+  ) |>
+  pivot_longer(
+    cols      = ends_with("_avg"),
+    names_to  = "variable",
+    values_to = "num_missing"
+  ) |>
+  filter(num_missing > 0)
+
+teacher_evals_clean |>
+  filter(if_any(where(is.numeric), ~ is.na(.x))) |>
+  select(
+    teacher_id, course_id, question_no,
+    where(is.numeric)
+  )
 ```
 
 **WD-3: I can filter rows from a dataframe for a *variety* of data types (e.g., numeric, integer, character, factor, date).**
@@ -131,17 +164,25 @@ teacher_evals_clean <- teacher_evals |>
 -   Numeric Example 2
 
 ```{r}
-#| label: wd-3-numeric-ex-1
+#| label: wd-3-numeric-ex-2
 # Lab 4: Question 5
 
-ca_childcare |>
+income_2008_2018 <- ca_childcare |>
   filter(study_year %in% c(2008, 2018)) |>
   group_by(census_region, study_year) |>
-  summarise(median_income_2018 = median(mhi_2018, na.rm = TRUE), .groups = "drop") |>
-  pivot_wider(names_from = study_year, 
-              values_from = median_income_2018, 
-              names_prefix = "Year: ") |>
-  arrange(desc('Year: 2018'))
+  summarise(
+    median_income_2018_dollars = median(mhi_2018, na.rm = TRUE),
+    .groups = "drop"
+  ) |>
+  pivot_wider(
+    names_from   = study_year,
+    values_from  = median_income_2018_dollars,
+    names_prefix = "Median income (2018 dollars) - "
+  ) |>
+  arrange(desc(`Median income (2018 dollars) - 2018`))
+
+income_2008_2018
+
 ```
 
 -   Character Example 1 (any context)
@@ -160,21 +201,22 @@ ca_childcare <- counties |>
 
 ```{r}
 #| label: wd-3-string
-# Lab 5: Identify the Two Witnesses 
+# Lab 5: Identify the Two Witnesses
 
-# Witness 1: Last house on Northwestern Dr
-witness1 <- person |>
-  filter(address_street_name == "Northwestern Dr") |>
-  arrange(desc(address_number)) |>
-  head(1)
+witnesses <- person |>
+  filter(
+    (address_street_name == "Northwestern Dr" &
+       address_number == max(address_number[address_street_name == "Northwestern Dr"])) |
+      (address_street_name == "Franklin Ave" & str_detect(name, "Annabel"))
+  ) |>
+  select(id, name, address_number, address_street_name)
 
-# Witness 2: Annabel on Franklin Ave
-witness2 <- person |>
-  filter(str_detect(name, "Annabel"),
-         address_street_name == "Franklin Ave")
+witness_interviews <- witnesses |>
+  left_join(interview, by = c("id" = "person_id")) |>
+  select(name, transcript) |>
+  filter(!is.na(transcript))
 
-witness1
-witness2
+witness_interviews
 ```
 
 -   Date (example must use functions from **lubridate**)
@@ -210,13 +252,20 @@ teacher_evals_clean |>
 #| label: wd-4-numeric-ex-2
 # Lab 5: Find Who Hired Jeremy Bowers
 
+facebook_event_checkin <- facebook_event_checkin |>
+  mutate(date = ymd(date))
+
 concert_attendees <- facebook_event_checkin |>
-  filter(event_name == "SQL Symphony Concert",
-         str_starts(date, "201712")) |>
-  count(person_id, name = "n_checkins") |>
+  filter(
+    event_name == "SQL Symphony Concert",
+    month(date) == 12,
+    year(date) == 2017
+  ) |>
+  count(person_id, name = "n_checkins", sort = TRUE) |>
   filter(n_checkins >= 3)
 
 concert_attendees
+
 ```
 
 -   Factor Example 1 (renaming levels)
@@ -242,6 +291,7 @@ ca_childcare <- ca_childcare |>
       san_diego_imperial = san_diego_imperial_counties
     )
   )
+
 ```
 
 -   Factor Example 2 (reordering levels)
@@ -252,39 +302,40 @@ ca_childcare <- ca_childcare |>
 
 suspect_member <- get_fit_now_member |>
   mutate(
-    # Convert membership_status to an ordered factor
-    membership_status = factor(
+    membership_status = fct_relevel(
       membership_status,
-      levels = c("bronze", "silver", "gold"),
-      ordered = TRUE
+      "bronze", "silver", "gold"
     )
   ) |>
-  filter(str_starts(id, "48Z"),
-         membership_status == "gold")
+  filter(
+    str_starts(id, "48Z"),
+    membership_status == "gold"
+  )
+
+suspect_member
 ```
 
 -   Character (example must use functions from **stringr**)
 
 ```{r}
 #| label: wd-4-string
-# Lab 5: Identify the Two Witnesses
+# Lab 4: Question 4
 
-filter(str_detect(name, "Annabel"),
-       address_street_name == "Franklin Ave")
+ca_childcare <- ca_childcare |>
+  mutate(
+    county_name = str_remove(county_name, " County")
+  )
 ```
 
 -   Date (example must use functions from **lubridate**)
 
 ```{r}
 #| label: wd-4-date
-# lab 5: Find Initial Suspect
+# Lab 5: Find Who Hired Jeremy Bowers
 
-suspect_checkin <- get_fit_now_check_in |>
-  mutate(check_in_date = ymd(check_in_date)) |>
-  filter(membership_id %in% suspect_member$id,
-         check_in_date == ymd("2018-01-09"))
+facebook_event_checkin <- facebook_event_checkin |>
+  mutate(date = ymd(date))
 
-suspect_checkin
 ```
 
 **WD-5: I can use mutating joins to combine multiple dataframes.**
@@ -296,9 +347,14 @@ suspect_checkin
 # Lab 4: Question 3
 
 ca_childcare <- ca_childcare |>
-  left_join(tax_rev,
-            by = join_by(county_name == entity_name,
-                         study_year == year))
+  left_join(
+    tax_rev,
+    by = join_by(
+      county_name == entity_name,
+      study_year  == year
+    )
+  )
+
 ```
 
 -   `right_join()` Example 1
@@ -308,30 +364,32 @@ ca_childcare <- ca_childcare |>
 # Lab 4: Question 3
 
 ca_childcare <- tax_rev |>
-  right_join(ca_childcare,
-    by = join_by(entity_name == county_name,
-                 year == study_year))
+  right_join(
+    ca_childcare,
+    by = join_by(
+      entity_name == county_name,
+      year        == study_year
+    )
+  )
+
 ```
 
 -   `left_join()` **or** `right_join()` Example 2
 
 ```{r}
 #| label: wd-5-left-right-ex-2
-#Lab 5: Joining to Find Specific Person
+# Lab 5: Joining to Find Specific Person
 
 suspect_pool <- concert_attendees |>
   left_join(
-    y = person,
-    by = join_by(
-      person_id == id
-    )
+    y  = person,
+    by = join_by(person_id == id)
   ) |>
   left_join(
-    y = drivers_license,
-    by = join_by(
-      license_id == id
-    )
+    y  = drivers_license,
+    by = join_by(license_id == id)
   )
+
 ```
 
 -   `inner_join()` Example 1
@@ -342,8 +400,11 @@ suspect_pool <- concert_attendees |>
 
 ca_childcare <- counties |>
   filter(state_name == "California") |>
-  inner_join(childcare_costs,
-             by = join_by(county_fips_code == county_fips_code))
+  inner_join(
+    childcare_costs,
+    by = join_by(county_fips_code == county_fips_code)
+  )
+
 ```
 
 -   `inner_join()` Example 2
@@ -353,7 +414,10 @@ ca_childcare <- counties |>
 # Lab 5: Interview Initial Suspect
 
 suspect_interview <- suspect |>
-  inner_join(interview, by = c("person_id" = "person_id"))
+  inner_join(
+    interview,
+    by = join_by(person_id == person_id)
+  )
 ```
 
 **WD-6: I can use filtering joins to filter rows from a dataframe.**
@@ -362,6 +426,12 @@ suspect_interview <- suspect |>
 
 ```{r}
 #| label: wd-6-semi
+# Lab 5: Interview Initial Suspect
+
+suspect_with_interview <- suspect_info |>
+  semi_join(interview, by = c("id" = "person_id"))
+
+suspect_with_interview
 
 ```
 
@@ -369,7 +439,13 @@ suspect_interview <- suspect |>
 
 ```{r}
 #| label: wd-6-anti
+# Lab 5: Interview Initial Suspect
 
+people_without_interview <- person |>
+  anti_join(interview, by = c("id" = "person_id")) |>
+  select(id, name, hair_color, height)
+
+people_without_interview
 ```
 
 **WD-7: I can pivot dataframes from long to wide and visa versa**
@@ -379,11 +455,17 @@ suspect_interview <- suspect |>
 ```{r}
 #| label: wd-7-long
 # Lab 3: Question 8
+
 teacher_evals_clean |>
   filter(if_any(everything(), is.na)) |>
-  summarize(across(everything(), ~ sum(is.na(.))), .groups = "drop") |>
-  pivot_longer(everything(), names_to = "variable", values_to = "num_missing") |>
-  filter(num_missing > 0)
+  summarize(
+    across(everything(), ~ sum(is.na(.))),
+    .groups = "drop"
+  ) |>
+  pivot_longer(
+    everything(),
+    names_to  = "variable",
+    values_to = "num_mi
 ```
 
 -   `pivot_wider()`
@@ -400,8 +482,8 @@ income_2008_2018 <- ca_childcare |>
     .groups = "drop"
   ) |>
   pivot_wider(
-    names_from = study_year,
-    values_from = median_income_2018_dollars,
+    names_from   = study_year,
+    values_from  = median_income_2018_dollars,
     names_prefix = "Median income (2018 dollars) - "
   ) |>
   arrange(desc(`Median income (2018 dollars) - 2018`))
@@ -517,6 +599,31 @@ teacher_evals_clean <- teacher_evals |>
 
 ```{r}
 #| label: r-2-3
+# Lab 8: Question 1
+
+# Helper
+rescale_01 <- function(x) {
+  if (!is.numeric(x)) 
+    stop("Input must be numeric.")
+  if (length(x) <= 1) 
+    stop("Input must have length > 1.")
+  r <- range(x, na.rm = TRUE)
+  (x - r[1]) / (r[2] - r[1])
+}
+
+# Main
+rescale_column <- function(df, cols) {
+  if (!is.data.frame(df))
+    stop("Input must be a data frame.")
+
+  df |>
+    mutate(
+      across(
+        .cols = {{ cols }},
+        .fns  = ~ rescale_01(.x)
+      )
+    )
+}
 
 ```
 
@@ -526,35 +633,37 @@ teacher_evals_clean <- teacher_evals |>
 
 ```{r}
 #| label: r-3-example
-# Lab 3: Question 5
+# Lab 8: Question 2
 
-#| label: data-cleaning
-teacher_evals_clean <- teacher_evals |>
-  rename(sex = gender) |>
-  filter(no_participants >= 10) |>
-  mutate(
-    teacher_id = as.character(teacher_id),
-    course_id = as.character(course_id)
-  ) |>
-  select(
-    course_id, 
-    teacher_id, 
-    question_no, 
-    no_participants, 
-    resp_share,
-    SET_score_avg, 
-    percent_failed_cur, 
-    academic_degree, 
-    seniority, 
-    sex
-  )
+pivot_table <- function(df, row, col) {
+  if (!is.data.frame(df)) {
+    stop("Input must be a data frame.")
+  }
+
+  df |>
+    count({{ row }}, {{ col }}) |>
+    pivot_wider(
+      names_from  = {{ col }},
+      values_from = n,
+      values_fill = 0
+    ) |>
+    janitor::adorn_totals(c("row", "col"))
+}
 ```
 
 -   Example (function stops)
 
 ```{r}
 #| label: r-3-function-stops
-
+# Lab 8: Question 1
+rescale_01 <- function(x) {
+  if (!is.numeric(x)) 
+    stop("Input must be numeric.")
+  if (length(x) <= 1) 
+    stop("Input must have length > 1.")
+  r <- range(x, na.rm = TRUE)
+  (x - r[1]) / (r[2] - r[1])
+}
 ```
 
 ## Data Visualization & Summarization
@@ -813,6 +922,27 @@ recreate_plot <- ca_childcare |>
 
 ```{r}
 #| label: dvs-3-1-ex-1
+# Lab 4: Question 8
+
+ggplot(
+  data = ca_childcare,
+  mapping = aes(x = mhi_2018, y = mc_infant)
+) +
+  geom_point(
+    alpha = 0.5,
+    color = "darkgreen"
+  ) +
+  geom_smooth(
+    method = "lm",
+    se = TRUE,
+    color = "gold"
+  ) +
+  labs(
+    x = "Median household income (2018 dollars)",
+    y = "Median weekly price (infant, center-based)",
+    title = "Income vs. Infant Center-Based Weekly Price (CA, 2018)"
+  ) +
+  theme_bw(base_size = 10)
 
 ```
 
@@ -820,6 +950,22 @@ recreate_plot <- ca_childcare |>
 
 ```{r}
 #| label: dvs-3-1-ex-2
+# Lab 8: Question 4
+
+library(RColorBrewer)
+
+my_plot <- ggplot(
+  data = penguins,
+  mapping = aes(x = species, fill = sex)
+) +
+  geom_bar()
+
+style_plot(
+  my_plot,
+  theme_fn  = theme_bw,
+  palette   = brewer.pal(3, "Accent"),
+  aesthetic = "fill"
+)
 
 ```
 
@@ -827,6 +973,37 @@ recreate_plot <- ca_childcare |>
 
 ```{r}
 #| label: dvs-3-2
+# Lab 4: Question 8 (annotated for portfolio)
+
+label_point <- ca_childcare |>
+  summarise(
+    income_75 = quantile(mhi_2018, 0.75, na.rm = TRUE),
+    price_75  = quantile(mc_infant, 0.75, na.rm = TRUE)
+  )
+
+ggplot(
+  data = ca_childcare,
+  mapping = aes(x = mhi_2018, y = mc_infant)
+) +
+  geom_point(alpha = 0.5, color = "darkgreen") +
+  geom_smooth(method = "lm", se = TRUE, color = "gold") +
+  geom_text(
+    data = label_point,
+    mapping = aes(
+      x = income_75,
+      y = price_75,
+      label = "Higher-income,\n higher-cost counties"
+    ),
+    vjust = -0.5,
+    hjust = 1,
+    size  = 3
+  ) +
+  labs(
+    x = "Median household income (2018 dollars)",
+    y = "Median weekly price (infant, center-based)",
+    title = "Income vs. Infant Center-Based Weekly Price (CA, 2018)"
+  ) +
+  theme_bw(base_size = 10)
 
 ```
 
@@ -883,6 +1060,7 @@ one_year_fail <- teacher_evals_clean |>
     avg_fail = mean(percent_failed_cur, na.rm = TRUE),
     .groups = "drop"
   )
+
 ```
 
 -   Example 2
@@ -898,6 +1076,7 @@ income_2008_2018 <- ca_childcare |>
     median_income_2018_dollars = median(mhi_2018, na.rm = TRUE),
     .groups = "drop"
   )
+
 ```
 
 **DVS-6: I can create tables which make my summaries clear to the reader.**
@@ -930,6 +1109,30 @@ summary_tbl |>
 
 ```{r}
 #| label: dvs-6-ex-2
+# Lab 9: Question 6
+
+unformatted_summary_table |>
+  arrange(variable, level) |>
+  mutate(
+    Percent = scales::percent(prop, accuracy = 0.1),
+    Level   = level,
+    Count   = n
+  ) |>
+  select(Level, Count, Percent) |>
+  kbl(
+    col.names = c("Level", "Count", "Percent"),
+    caption   = "Demographics of Professors at the University of Poland, Warsaw in 2020"
+  ) |>
+  add_header_above(
+    c(" " = 1, "Instructor Distribution" = 2)
+  ) |>
+  kable_styling(
+    full_width = FALSE,
+    bootstrap_options = c("striped", "hover", "condensed")
+  ) |>
+  pack_rows("Academic Degree", 1, 4) |>
+  pack_rows("Seniority",5, 7) |>
+  pack_rows("Sex",8, 9)
 
 ```
 
@@ -947,7 +1150,7 @@ teacher_evals_clean |>
   ) |>
   arrange(desc(Percent)) |>
   rename(
-    Academic_Degree = academic_degree,
+    Academic_Degree  = academic_degree,
     Sex = sex
   ) |>
   select(
@@ -956,6 +1159,7 @@ teacher_evals_clean |>
     Instructor_Count,
     Percent
   )
+
 ```
 
 **DVS-7: I show creativity in my tables.**
@@ -964,6 +1168,27 @@ teacher_evals_clean |>
 
 ```{r}
 #| label: dvs-7-ex-1
+# Lab 9: Question 8
+
+fish |>
+  map_int(.f = ~ sum(is.na(.x))) |>
+  enframe(
+    name  = "Measurement Variable",
+    value = "Missing Values"
+  ) |>
+  arrange(desc(`Missing Values`)) |>
+  gt() |>
+  tab_header(
+    title    = "Number of Missing Values for Fish Measurements",
+    subtitle = "Data collected from 1989 to 2006 on the Blackfoot Fish River in Montana"
+  ) |>
+  data_color(
+    columns = `Missing Values`,
+    colors = function(x) case_when(
+      x == 0 ~ "darkgreen",
+      TRUE   ~ "darkred"
+    )
+  )
 
 ```
 
@@ -971,6 +1196,24 @@ teacher_evals_clean |>
 
 ```{r}
 #| label: dvs-7-ex-2
+# Lab 8: Question 2
+
+pivot_table <- function(df, row, col) {
+  if (!is.data.frame(df)) {
+    return("Input must be a data frame.")
+  }
+
+  df |>
+    count({{ row }}, {{ col }}) |>
+    pivot_wider(
+      names_from  = {{ col }},
+      values_from = n,
+      values_fill = 0
+    ) |>
+    janitor::adorn_totals(c("row", "col"))
+}
+
+pivot_table(penguins, row = sex, col = species)
 
 ```
 
@@ -1020,6 +1263,18 @@ summary_tbl |>
 
 ```{r}
 #| label: pe-1-map-1
+# Lab 9: Question 2
+
+lab2_table <- surveys |>
+  map_chr(.f = ~ class(.x)) |>
+  enframe(
+    name  = "Variable",
+    value = "Data Type"
+  )
+
+lab2_table |>
+  kbl(caption = "Data type of each variable in the surveys dataset") |>
+  kable_minimal()
 
 ```
 
@@ -1029,6 +1284,19 @@ summary_tbl |>
 
 ```{r}
 #| label: pe-2-1
+# Lab 8: Question 1
+
+rescale_01 <- function(x) {
+  if (!is.numeric(x)) {
+    stop("`x` must be numeric.")
+  }
+  if (length(x) < 2) {
+    stop("`x` must have length at least 2.")
+  }
+
+  r <- range(x, na.rm = TRUE)
+  (x - r[1]) / (r[2] - r[1])
+}
 
 ```
 
@@ -1036,6 +1304,22 @@ summary_tbl |>
 
 ```{r}
 #| label: pe-2-2
+# Lab 8: Question 2
+
+pivot_table <- function(df, row, col) {
+  if (!is.data.frame(df)) {
+    stop("`df` must be a data frame.")
+  }
+
+  df |>
+    count({{ row }}, {{ col }}) |>
+    pivot_wider(
+      names_from  = {{ col }},
+      values_from = n,
+      values_fill = 0
+    ) |>
+    janitor::adorn_totals(c("row", "col"))
+}
 
 ```
 
@@ -1043,7 +1327,25 @@ summary_tbl |>
 
 ```{r}
 #| label: pe-2-3
+#| label: pe-2-3
+# Lab 8: Function to style a plot
 
+style_plot <- function(p,
+                       theme_fn = theme_minimal,
+                       palette  = RColorBrewer::brewer.pal(8, "Accent"),
+                       aesthetic = "fill") {  
+  p <- p + theme_fn()
+
+  if (aesthetic == "fill") {
+    p <- p + scale_fill_manual(values = palette)
+  } else if (aesthetic == "color") {
+    p <- p + scale_color_manual(values = palette)
+  } else {
+    stop('aesthetic must be "fill" or "color"')
+  }
+
+  p
+}
 ```
 
 **PE-3:I can use iteration to reduce repetition in my code.**
@@ -1077,6 +1379,18 @@ summary_tbl |>
 
 ```{r}
 #| label: pe-3-map-1
+# Lab 9: Revisit of Lab 2, Question 2
+
+lab2_table <- surveys |>
+  map_chr(.f = ~ class(.x)) |>
+  enframe(
+    name  = "Variable",
+    value = "Data Type"
+  )
+
+lab2_table |>
+  kbl(caption = "Data type of each variable in the surveys dataset") |>
+  kable_minimal()
 
 ```
 
@@ -1084,6 +1398,14 @@ summary_tbl |>
 
 ```{r}
 #| label: pe-3-map-2
+# Lab 9: Revisit of Lab 3, Question 4
+
+evals_fct <- evals |>
+  map_if(
+    .p = is.character,
+    .f = as.factor
+  ) |>
+  bind_cols()
 
 ```
 
@@ -1096,9 +1418,14 @@ summary_tbl |>
 # Lab 4: Question 3
 
 ca_childcare <- ca_childcare |>
-  left_join(tax_rev,
-            by = join_by(county_name == entity_name,
-                         study_year == year))
+  left_join(
+    tax_rev,
+    by = join_by(
+      county_name == entity_name,
+      study_year  == year
+    )
+  )
+
 ```
 
 -   I can connect a data wrangling pipeline into a `ggplot()`
