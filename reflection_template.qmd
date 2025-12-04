@@ -11,7 +11,7 @@ execute:
   echo: true
 ---
 
-[**My Grade:**]{.underline} I believe my grade equivalent to course work evidenced below to be an \_\_.
+[**My Grade:**]{.underline} I believe my grade equivalent to course work evidenced below to be an \_C+\_.
 
 [**Learning Objective Evidence:**]{.underline} In the code chunks below, provide code from Lab or Challenge assignments where you believe you have demonstrated proficiency with the specified learning target. Be sure to specify **where** the code came from (e.g., Lab 4 Question 2).
 
@@ -800,43 +800,45 @@ ggplot(
 
 ```{r}
 #| label: dvs-2-ex-1
-# Lab 4: Question 7
+# Lab 7: Question 3
 
-ggplot(
-  data = recreate_plot,
-  mapping = aes(x = study_year, y = price, color = census_region)
-) +
-  geom_point(
-    size = 0.75,
-    alpha = 0.6
-  ) +
-  geom_smooth(
-    linewidth = 0.75,
-    se = TRUE
-  ) +
-  facet_wrap(
-    ~factor(age, c("Infant", "Toddler", "Preschool"))
-  ) +
-  scale_y_continuous(
-    labels = scales::dollar_format(prefix = "$", big.mark = ",")
-  ) +
-  scale_x_continuous(
-    breaks = seq(2008, 2018, by = 2),
-    limits = c(2008, 2018)
-  ) +
-  scale_color_manual(
-    values = mycolors
-  ) +
+missing_summary <- fish |>
+  group_by(year, section, trip) |>
+  summarise(
+    across(everything(), \(x) sum(is.na(x))),
+    .groups = "drop"
+  ) |>
+  pivot_longer(
+    cols = -c(year, section, trip),
+    names_to = "variable",
+    values_to = "num_missing"
+  ) |>
+  filter(num_missing > 0) |>
+  mutate(
+    section = fct_infreq(as_factor(section)),
+    trip    = fct_recode(
+      as_factor(trip),
+      "Trip 1" = "1",
+      "Trip 2" = "2",
+      "Trip 3" = "3"
+    )
+  )
+
+# visualize
+ggplot(missing_summary, aes(x = as_factor(year), y = num_missing, fill = section)) +
+  geom_col(position = "dodge") +
+  facet_wrap(~trip, ncol = 3, scales = "free_y") +
   labs(
-    title = "Weekly Median Price for Center-Based Childcare ($)",
-    x = "Study Year",
-    y = NULL,
-    color = "California Region"
+    title    = "Missing Measurements in Blackfoot River Trout Study",
+    subtitle = "Number of missing values by year, river section, and sampling trip",
+    x        = "Year",
+    y        = "",
+    fill     = "River section"
   ) +
-  theme_bw(base_size = 10) +
+  theme_minimal() +
   theme(
-    aspect.ratio = 1.25,
-    axis.text.x = element_text(angle = 30)
+    axis.text.x = element_text(size = 6),
+    axis.text.y = element_text(size = 6)
   )
 ```
 
@@ -854,39 +856,92 @@ mycolors <- colorRampPalette(brewer.pal(7, "Accent"))(10)
 
 ```{r}
 #| label: dvs-2-ex-3
-# Lab 4: Question 8
+# Lab 7: Question 3
 
-ggplot(
-  data = ca_childcare,
-  mapping = aes(x = mhi_2018, y = mc_infant)
-) +
-  geom_point(
-    alpha = 0.5,
-    color = "darkgreen"
-  ) +
-  geom_smooth(
-    method = "lm",
-    se = TRUE,
-    color = "gold"
-  ) +
+missing_summary <- fish |>
+  group_by(year, section, trip) |>
+  summarise(
+    across(everything(), \(x) sum(is.na(x))),
+    .groups = "drop"
+  ) |>
+  pivot_longer(
+    cols = -c(year, section, trip),
+    names_to = "variable",
+    values_to = "num_missing"
+  ) |>
+  filter(num_missing > 0) |>
+  mutate(
+    section = fct_infreq(as_factor(section)),
+    trip    = fct_recode(
+      as_factor(trip),
+      "Trip 1" = "1",
+      "Trip 2" = "2",
+      "Trip 3" = "3"
+    )
+  )
+
+# visualize
+ggplot(missing_summary, aes(x = as_factor(year), y = num_missing, fill = section)) +
+  geom_col(position = "dodge") +
+  facet_wrap(~trip, ncol = 3, scales = "free_y") +
   labs(
-    title = "Income vs. Infant Center-Based Weekly Price (CA, 2018)",
-    x = "Median household income (2018 dollars)",
-    y = "Median weekly price (infant, center-based)"
+    title    = "Missing Measurements in Blackfoot River Trout Study",
+    subtitle = "Number of missing values by year, river section, and sampling trip",
+    x        = "Year",
+    y        = "",
+    fill     = "River section"
   ) +
-  theme_bw(base_size = 10)
+  theme_minimal() +
+  theme(
+    axis.text.x = element_text(size = 6),
+    axis.text.y = element_text(size = 6)
+  )
 ```
 
 -   I can modify the text in my plot to be more readable
 
 ```{r}
 #| label: dvs-2-ex-4
-# Lab 4: Question 7
+# Lab 7: Question 3
 
-theme(
-  aspect.ratio = 1.25,
-  axis.text.x = element_text(angle = 30)
-)
+missing_summary <- fish |>
+  group_by(year, section, trip) |>
+  summarise(
+    across(everything(), \(x) sum(is.na(x))),
+    .groups = "drop"
+  ) |>
+  pivot_longer(
+    cols = -c(year, section, trip),
+    names_to = "variable",
+    values_to = "num_missing"
+  ) |>
+  filter(num_missing > 0) |>
+  mutate(
+    section = fct_infreq(as_factor(section)),
+    trip    = fct_recode(
+      as_factor(trip),
+      "Trip 1" = "1",
+      "Trip 2" = "2",
+      "Trip 3" = "3"
+    )
+  )
+
+# visualize
+ggplot(missing_summary, aes(x = as_factor(year), y = num_missing, fill = section)) +
+  geom_col(position = "dodge") +
+  facet_wrap(~trip, ncol = 3, scales = "free_y") +
+  labs(
+    title    = "Missing Measurements in Blackfoot River Trout Study",
+    subtitle = "Number of missing values by year, river section, and sampling trip",
+    x        = "Year",
+    y        = "",
+    fill     = "River section"
+  ) +
+  theme_minimal() +
+  theme(
+    axis.text.x = element_text(size = 6),
+    axis.text.y = element_text(size = 6)
+  )
 ```
 
 -   I can reorder my legend to align with the colors in my plot
@@ -975,37 +1030,6 @@ style_plot(
 
 ```{r}
 #| label: dvs-3-2
-# Lab 4: Question 8 (annotated for portfolio)
-
-label_point <- ca_childcare |>
-  summarise(
-    income_75 = quantile(mhi_2018, 0.75, na.rm = TRUE),
-    price_75  = quantile(mc_infant, 0.75, na.rm = TRUE)
-  )
-
-ggplot(
-  data = ca_childcare,
-  mapping = aes(x = mhi_2018, y = mc_infant)
-) +
-  geom_point(alpha = 0.5, color = "darkgreen") +
-  geom_smooth(method = "lm", se = TRUE, color = "gold") +
-  geom_text(
-    data = label_point,
-    mapping = aes(
-      x = income_75,
-      y = price_75,
-      label = "Higher-income,\n higher-cost counties"
-    ),
-    vjust = -0.5,
-    hjust = 1,
-    size  = 3
-  ) +
-  labs(
-    x = "Median household income (2018 dollars)",
-    y = "Median weekly price (infant, center-based)",
-    title = "Income vs. Infant Center-Based Weekly Price (CA, 2018)"
-  ) +
-  theme_bw(base_size = 10)
 
 ```
 
@@ -1039,11 +1063,18 @@ teacher_evals_clean |>
 # Lab 3: Question 8
 
 teacher_evals_clean |>
-  filter(if_any(everything(), is.na)) |>
-  summarize(
-    across(everything(), ~ sum(is.na(.))),
-    .groups = "drop"
-  )
+  summarise(
+    across(
+      .cols = everything(),
+      .fns  = ~ sum(is.na(.x))
+    )
+  ) |>
+  pivot_longer(
+    cols      = everything(),
+    names_to  = "variable",
+    values_to = "num_missing"
+  ) |>
+  filter(num_missing > 0)
 
 ```
 
@@ -1077,7 +1108,13 @@ income_2008_2018 <- ca_childcare |>
   summarise(
     median_income_2018_dollars = median(mhi_2018, na.rm = TRUE),
     .groups = "drop"
-  )
+  ) |>
+  pivot_wider(
+    names_from   = study_year,
+    values_from  = median_income_2018_dollars,
+    names_prefix = "Median income (2018 dollars) - "
+  ) |>
+  arrange(desc(`Median income (2018 dollars) - 2018`))
 
 ```
 
@@ -1146,13 +1183,20 @@ unformatted_summary_table |>
 
 teacher_evals_clean |>
   distinct(teacher_id, .keep_all = TRUE) |>
+  summarize(
+    total_instructors = n(),
+    avg_seniority = mean(seniority, na.rm = TRUE)
+  )
+
+teacher_evals_clean |>
+  distinct(teacher_id, .keep_all = TRUE) |>
   count(academic_degree, sex, name = "Instructor_Count") |>
   mutate(
     Percent = round((Instructor_Count / sum(Instructor_Count)) * 100, 1)
   ) |>
   arrange(desc(Percent)) |>
   rename(
-    Academic_Degree  = academic_degree,
+    Academic_Degree = academic_degree,
     Sex = sex
   ) |>
   select(
@@ -1243,6 +1287,7 @@ recreate_plot <- ca_childcare |>
     names_to = "age",
     values_to = "price"
   )
+
 ```
 
 -   using `across()`
@@ -1288,18 +1333,33 @@ lab2_table |>
 #| label: pe-2-1
 # Lab 8: Question 1
 
+# Helper
 rescale_01 <- function(x) {
-  if (!is.numeric(x)) {
-    stop("`x` must be numeric.")
-  }
-  if (length(x) < 2) {
-    stop("`x` must have length at least 2.")
-  }
-
+  if (!is.numeric(x)) 
+    return("Input must be numeric.")
+  if (length(x) <= 1) 
+    return("Input must have length > 1.")
   r <- range(x, na.rm = TRUE)
   (x - r[1]) / (r[2] - r[1])
 }
 
+# Main
+rescale_column <- function(df, cols) {
+  if (!is.data.frame(df))
+    return("Input must be a data frame.")
+
+  df |>
+    mutate(
+      across(
+        .cols = {{ cols }},
+        .fns  = ~ rescale_01(.x)
+      )
+    )
+}
+
+rescale_column(penguins, 
+               cols = c(bill_length_mm, bill_depth_mm, flipper_length_mm, body_mass_g)
+               )
 ```
 
 -   Example 2: Function that operates on data frames
@@ -1323,13 +1383,15 @@ pivot_table <- function(df, row, col) {
     janitor::adorn_totals(c("row", "col"))
 }
 
+pivot_table(penguins, row = sex, col = species)
+
 ```
 
 -   Example 3: Function that operates on vectors *or* data frames
 
 ```{r}
 #| label: pe-2-3
-# Lab 8: Function to style a plot
+# Lab 8: Question 4
 
 style_plot <- function(p,
                        theme_fn = theme_minimal,
@@ -1344,9 +1406,17 @@ style_plot <- function(p,
   } else {
     stop('aesthetic must be "fill" or "color"')
   }
-
   p
 }
+
+my_plot <- ggplot(penguins, mapping = aes(x = species, fill = sex)) + 
+  geom_bar()
+
+style_plot(my_plot, 
+           theme_fn = theme_bw, 
+           palette = brewer.pal(3, "Accent"), 
+           aesthetic = "fill")
+
 ```
 
 **PE-3:I can use iteration to reduce repetition in my code.**
@@ -1384,10 +1454,10 @@ summary_tbl |>
 
 lab2_table <- surveys |>
   map_chr(.f = ~ class(.x)) |>
-  enframe(
-    name  = "Variable",
-    value = "Data Type"
-  )
+  enframe(name = "Variable",
+          value = "Data Type")|>
+    mutate(`Data Type` = str_to_lower(`Data Type`))
+
 
 lab2_table |>
   kbl(caption = "Data type of each variable in the surveys dataset") |>
@@ -1477,13 +1547,66 @@ ca_childcare |>
 
 ```{r}
 #| label: dsm-1-1
+# Lab 10: Question 1
 
+randomBabies <- function(n_babies = 4) {
+  
+  babies <- tibble(
+    parent = 1:n_babies,
+    baby = sample(1:n_babies,
+                    size = n_babies,
+                    replace = FALSE)
+  )
+  
+  babies |>
+    mutate(correct = parent == baby) |>
+    summarise(n_correct = sum(correct)) |>
+    pull(n_correct)
+}
+
+set.seed(0912)
+results <- map_int(.x = 1:10000,
+                   .f = ~ randomBabies(n_babies = 4)
+)
 ```
 
 -   Example 2
 
 ```{r}
 #| label: dsm-1-2
+# Lab 10: Question 8 & 10
+
+mycifun <- function(beta0, beta1, n) {
+  # generate x vector
+  x <- runif(n, min = 0, max = 1)
+  
+  # generate noise (sigma^2 = 1 -> sd = 1)
+  ep <- rnorm(n, mean = 0, sd = 1)
+  
+  # generate outcome from population model
+  y <- beta0 + beta1 * x + ep
+  
+  # fit linear model
+  model <- lm(y ~ x)
+  
+  # extract slope estimate + CI and check coverage
+  tidy(model,
+       conf.int  = TRUE,
+       conf.level = 0.95) |>
+    filter(term == "x") |>
+    select(estimate, conf.low, conf.high) |>
+    mutate(
+      cover = case_when(
+        conf.low <= beta1 & beta1 <= conf.high ~ 1,
+        .default = 0
+      )
+    )
+}
+
+set.seed(0129)
+ci_dat <- map(.x = 1:1000,
+              .f = ~ mycifun(beta0 = 3, beta1 = 0.5, n = 100)
+              )
 
 ```
 
