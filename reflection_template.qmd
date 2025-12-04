@@ -63,7 +63,8 @@ ages <- read_xlsx(
     "ages.xlsx"),
   sheet = "ages", 
   skip  = 0, 
-  n_max = 6)
+  n_max = 6
+  )
 
 ```
 
