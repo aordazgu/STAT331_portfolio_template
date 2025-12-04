@@ -40,7 +40,13 @@ surveys <- readr::read_csv(
 #| label: wd-1-csv-2
 # Lab 3: Question 2
 
-teacher_evals <- read_csv(here::here('Week3', 'Lab3', 'teacher_evals.csv'))
+teacher_evals <- read_csv(
+  file = here::here(
+    'Week3', 
+    'Lab3', 
+    'teacher_evals.csv'
+    )
+  )
 ```
 
 -   `xlsx`
@@ -49,13 +55,16 @@ teacher_evals <- read_csv(here::here('Week3', 'Lab3', 'teacher_evals.csv'))
 #| label: wd-1-xlsx
 # Week 2: Check-in 2.2
 
-ages <- read_xlsx(here::here("Week2",
-                             "Check-in",
-                             "Ages_Data",
-                             "ages.xlsx"),
-                  sheet = "ages", 
-                  skip  = 0, 
-                  n_max = 6)
+ages <- read_xlsx(
+  file = here::here(
+    "Week2",
+    "Check-in",
+    "Ages_Data",
+    "ages.xlsx"),
+  sheet = "ages", 
+  skip  = 0, 
+  n_max = 6)
+
 ```
 
 -   `txt`
@@ -64,11 +73,14 @@ ages <- read_xlsx(here::here("Week2",
 #| label: wd-1-txt
 # Week 2: Check-in 2.3
 
-ages_space <- read_table(here::here("Week2",
-                                    "Check-in",
-                                    "Ages_Data",
-                                    "ages_space.txt"),
-                         col_names = TRUE)
+ages_space <- read_table(
+  file = here::here(
+    "Week2",
+    "Check-in",
+    "Ages_Data",
+    "ages_space.txt"),
+  col_names = TRUE)
+
 ```
 
 **WD-2: I can select necessary columns from a dataset.**
