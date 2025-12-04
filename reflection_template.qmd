@@ -71,7 +71,6 @@ ages_space <- read_table(here::here("Week2",
                          col_names = TRUE)
 ```
 
-
 **WD-2: I can select necessary columns from a dataset.**
 
 -   Example selecting specified columns
@@ -465,7 +464,10 @@ teacher_evals_clean |>
   pivot_longer(
     everything(),
     names_to  = "variable",
-    values_to = "num_mi
+    values_to = "num_missing"
+  ) |>
+  filter(num_missing > 0)
+
 ```
 
 -   `pivot_wider()`
@@ -495,11 +497,11 @@ income_2008_2018 <- ca_childcare |>
 
 The following assignments satisfy the above criteria:
 
--   Example 1
--   Example 2
--   Example 3
--   Example 4
--   Example 5
+-   Example 1: Lab 1 – Introduction to Quarto
+-   Example 2: Lab 2 – Exploring Rodents with ggplot2
+-   Example 3: Lab 3 – Student Evaluations of Teaching
+-   Example 4: Lab 7 – Functions + Fish
+-   Example 5: Lab 9 & Challenge 9 – Searching for Efficiency & Making Great Tables
 
 **R-2: I can write well documented and tidy code.**
 
@@ -1326,7 +1328,6 @@ pivot_table <- function(df, row, col) {
 -   Example 3: Function that operates on vectors *or* data frames
 
 ```{r}
-#| label: pe-2-3
 #| label: pe-2-3
 # Lab 8: Function to style a plot
 
