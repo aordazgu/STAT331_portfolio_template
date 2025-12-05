@@ -23,7 +23,7 @@ execute:
 
 ```{r}
 #| label: wd-1-csv-1
-# Lab 2: Question 1
+# Lab 2: Question 1 
 
 surveys <- readr::read_csv(
   file = here::here(
@@ -109,7 +109,7 @@ teacher_evals_clean <- teacher_evals |>
 
 ```{r}
 #| label: wd-2-ex-2
-# Lab 7: Question 3
+# Lab 7: Question 3 (Revised)
 
 missing_summary <- fish |>
   group_by(year, section, trip) |>
@@ -132,7 +132,7 @@ missing_summary <- fish |>
 
 ```{r}
 #| label: wd-2-ex-3
-# Lab 3: Question 8
+# Lab 3: Question 8 (Revised)
 
 teacher_evals_clean |>
   filter(
@@ -182,7 +182,7 @@ teacher_evals_clean <- teacher_evals |>
 
 ```{r}
 #| label: wd-3-numeric-ex-2
-# Lab 4: Question 5
+# Lab 4: Question 5 (Revised)
 
 income_2008_2018 <- ca_childcare |>
   filter(study_year %in% c(2008, 2018)) |>
@@ -254,7 +254,7 @@ get_fit_now_check_in |>
 
 ```{r}
 #| label: wd-4-numeric-ex-1
-# Lab 3: Question 7
+# Lab 3: Question 7 (Revised)
 
 teacher_evals_clean |>
   distinct(teacher_id, .keep_all = TRUE) |>
@@ -289,7 +289,7 @@ concert_attendees
 
 ```{r}
 #| label: wd-4-factor-ex-1
-# Lab 4: Question 4
+# Lab 4: Question 4 (Revised)
 
 ca_childcare <- ca_childcare |> 
   mutate(
@@ -336,7 +336,7 @@ suspect_member
 
 ```{r}
 #| label: wd-4-string
-# Lab 4: Question 4
+# Lab 4: Question 4 (Revised)
 
 ca_childcare <- ca_childcare |>
   mutate(
@@ -378,7 +378,7 @@ ca_childcare <- ca_childcare |>
 
 ```{r}
 #| label: wd-5-right
-# Lab 4: Question 3
+# Lab 4: Question 3 (Revised)
 
 ca_childcare <- tax_rev |>
   right_join(
@@ -471,7 +471,7 @@ people_without_interview
 
 ```{r}
 #| label: wd-7-long
-# Lab 3: Question 8
+# Lab 3: Question 8 (Revised)
 
 teacher_evals_clean |>
   filter(
@@ -501,7 +501,7 @@ teacher_evals_clean |>
 
 ```{r}
 #| label: wd-7-wide
-# Lab 4: Question 5
+# Lab 4: Question 5 (Revised)
 
 income_2008_2018 <- ca_childcare |>
   filter(study_year %in% c(2008, 2018)) |>
@@ -536,7 +536,7 @@ The following assignments satisfy the above criteria:
 
 ```{r}
 #| label: r-2-1
-# Lab 4: Question 7
+# Lab 4: Question 7 (Revised)
 
 library(RColorBrewer)
 
@@ -628,7 +628,7 @@ teacher_evals_clean <- teacher_evals |>
 
 ```{r}
 #| label: r-2-3
-# Lab 8: Question 1
+# Lab 8: Question 1 (Revised)
 
 # Helper
 rescale_01 <- function(x) {
@@ -662,7 +662,7 @@ rescale_column <- function(df, cols) {
 
 ```{r}
 #| label: r-3-example
-# Lab 8: Question 2
+# Lab 8: Question 2 (Revised)
 
 pivot_table <- function(df, row, col) {
   if (!is.data.frame(df)) {
@@ -684,7 +684,7 @@ pivot_table <- function(df, row, col) {
 
 ```{r}
 #| label: r-3-function-stops
-# Lab 8: Question 1
+# Lab 8: Question 1 (Revised)
 rescale_01 <- function(x) {
   if (!is.numeric(x)) 
     stop("Input must be numeric.")
@@ -703,7 +703,7 @@ rescale_01 <- function(x) {
 
 ```{r}
 #| label: dvs-1-num
-# Lab 4: Question 8
+# Lab 4: Question 8 (Revised)
 
 ggplot(
   data = ca_childcare,
@@ -774,7 +774,7 @@ ggplot(
 
 ```{r}
 #| label: dvs-2-cat
-# Lab 3: Question 7
+# Lab 3: Question 7 (Revised)
 
 ggplot(
   data = teacher_evals_clean |>
@@ -827,7 +827,7 @@ ggplot(
 
 ```{r}
 #| label: dvs-2-ex-1
-# Lab 7: Question 3
+# Lab 7: Question 3 (Revised)
 
 missing_summary <- fish |>
   group_by(year, section, trip) |>
@@ -876,7 +876,7 @@ ggplot(missing_summary, aes(x = as_factor(year), y = num_missing, fill = section
 
 ```{r}
 #| label: dvs-2-ex-2
-# Lab 4: Question 7
+# Lab 4: Question 7 (Revised)
 
 library(RColorBrewer)
 mycolors <- colorRampPalette(brewer.pal(7, "Accent"))(10)
@@ -886,7 +886,7 @@ mycolors <- colorRampPalette(brewer.pal(7, "Accent"))(10)
 
 ```{r}
 #| label: dvs-2-ex-3
-# Lab 7: Question 3
+# Lab 7: Question 3 (Revised)
 
 missing_summary <- fish |>
   group_by(year, section, trip) |>
@@ -935,7 +935,7 @@ ggplot(missing_summary, aes(x = as_factor(year), y = num_missing, fill = section
 
 ```{r}
 #| label: dvs-2-ex-4
-# Lab 7: Question 3
+# Lab 7: Question 3 (Revised)
 
 missing_summary <- fish |>
   group_by(year, section, trip) |>
@@ -984,7 +984,7 @@ ggplot(missing_summary, aes(x = as_factor(year), y = num_missing, fill = section
 
 ```{r}
 #| label: dvs-2-ex-5
-# Lab 4: Question 7
+# Lab 4: Question 7 (Revised)
 
 recreate_plot <- ca_childcare |>
   select(county_name, study_year, mc_infant, mc_toddler, mc_preschool, census_region) |>
@@ -1015,7 +1015,7 @@ recreate_plot <- ca_childcare |>
 
 ```{r}
 #| label: dvs-3-1-ex-1
-# Lab 4: Question 8
+# Lab 4: Question 8 (Revised)
 
 ggplot(
   data = ca_childcare,
@@ -1043,7 +1043,7 @@ ggplot(
 
 ```{r}
 #| label: dvs-3-1-ex-2
-# Lab 8: Question 4
+# Lab 8: Question 4 (Revised)
 
 library(RColorBrewer)
 
@@ -1082,7 +1082,7 @@ style_plot(
 
 ```{r}
 #| label: dvs-4-summarize
-# Lab 3: Question 7
+# Lab 3: Question 7 (Revised)
 
 teacher_evals_clean |>
   distinct(teacher_id, .keep_all = TRUE) |>
@@ -1096,7 +1096,7 @@ teacher_evals_clean |>
 
 ```{r}
 #| label: dvs-4-across
-# Lab 3: Question 8
+# Lab 3: Question 8 (Revised)
 
 teacher_evals_clean |>
   summarize(
@@ -1120,7 +1120,7 @@ teacher_evals_clean |>
 
 ```{r}
 #| label: dvs-5-1
-# Lab 3: Question 11
+# Lab 3: Question 11 (Revised)
 
 one_year_fail <- teacher_evals_clean |>
   filter(seniority == 1) |>
@@ -1136,7 +1136,7 @@ one_year_fail <- teacher_evals_clean |>
 
 ```{r}
 #| label: dvs-5-2
-# Lab 4: Question 5
+# Lab 4: Question 5 (Revised)
 
 income_2008_2018 <- ca_childcare |>
   filter(study_year %in% c(2008, 2018)) |>
@@ -1215,7 +1215,7 @@ unformatted_summary_table |>
 
 ```{r}
 #| label: dvs-6-ex-3
-# Lab 3: Question 7
+# Lab 3: Question 7 (Revised)
 
 teacher_evals_clean |>
   distinct(teacher_id, .keep_all = TRUE) |>
@@ -1250,7 +1250,7 @@ teacher_evals_clean |>
 
 ```{r}
 #| label: dvs-7-ex-1
-# Lab 9: Question 8
+# Lab 9: Question 8 (Revised)
 
 fish |>
   map_int(.f = ~ sum(is.na(.x))) |>
@@ -1278,7 +1278,7 @@ fish |>
 
 ```{r}
 #| label: dvs-7-ex-2
-# Lab 8: Question 2
+# Lab 8: Question 2 (Revised)
 
 pivot_table <- function(df, row, col) {
   if (!is.data.frame(df)) {
@@ -1307,7 +1307,7 @@ pivot_table(penguins, row = sex, col = species)
 
 ```{r}
 #| label: pe-1-one-call
-# Lab 4: Question 7
+# Lab 4: Question 7 (Revised)
 
 recreate_plot <- ca_childcare |>
   select(
@@ -1346,7 +1346,7 @@ summary_tbl |>
 
 ```{r}
 #| label: pe-1-map-1
-# Lab 9: Question 2
+# Lab 9: Question 2 (Revised)
 
 lab2_table <- surveys |>
   map_chr(.f = ~ class(.x)) |>
@@ -1367,7 +1367,7 @@ lab2_table |>
 
 ```{r}
 #| label: pe-2-1
-# Lab 8: Question 1
+# Lab 8: Question 1 (Revised)
 
 # Helper
 rescale_01 <- function(x) {
@@ -1402,7 +1402,7 @@ rescale_column(penguins,
 
 ```{r}
 #| label: pe-2-2
-# Lab 8: Question 2
+# Lab 8: Question 2 (Revised)
 
 pivot_table <- function(df, row, col) {
   if (!is.data.frame(df)) {
@@ -1427,7 +1427,7 @@ pivot_table(penguins, row = sex, col = species)
 
 ```{r}
 #| label: pe-2-3
-# Lab 8: Question 4
+# Lab 8: Question 4 (Revised)
 
 style_plot <- function(p,
                        theme_fn = theme_minimal,
@@ -1508,7 +1508,7 @@ lab2_table |>
 
 ```{r}
 #| label: pe-3-map-2
-# Lab 9: Revisit of Lab 3, Question 4
+# Lab 9: Revisit of Lab 3, Question 4 (Revised)
 
 evals_fct <- evals |>
   map_if(
@@ -1586,7 +1586,7 @@ ca_childcare |>
 
 ```{r}
 #| label: dsm-1-1
-# Lab 10: Question 1
+# Lab 10: Question 1 (Revised)
 
 randomBabies <- function(n_babies = 4) {
   
@@ -1613,7 +1613,7 @@ results <- map_int(.x = 1:10000,
 
 ```{r}
 #| label: dsm-1-2
-# Lab 10: Question 8 & 10
+# Lab 10: Question 8 & 10 (Revised)
 
 mycifun <- function(beta0, beta1, n) {
   # generate x vector
@@ -1658,7 +1658,7 @@ ci_dat <- map(.x = 1:1000,
 # Lab 1: Comparing Supplement Methods with a t-test
 
 t.test(
-  formula = len ~ supp,
+  len ~ supp,
   data = ToothGrowth,
   var.equal = FALSE,
   alternative = "two.sided"
@@ -1685,7 +1685,7 @@ summary(
 
 ```{r}
 #| label: dsm-2-3
-# Lab 4: Question 9
+# Lab 4: Question 9 (Revised)
 
 reg_mod1 <- lm(
   formula = mc_infant ~ mhi_2018,
@@ -1699,16 +1699,85 @@ summary(
 
 ## Revising My Thinking
 
-<!-- How did you revise your thinking throughout the course? How did you revise your thinking on the code examples you have provided in your portfolio? -->
+At the start of the course, I mainly focused on getting my code to run.
+As the quarter went on, my thinking shifted toward writing code that is
+clear, consistent, and modern. The revisions in my portfolio show this
+change. I went back to earlier labs and updated code to match the
+standards set for the class. Use tidyverse, dplyr, forcats, and purrr;
+avoid nested functions; use consistent syntax and formatting; use
+labeled arguments; and avoid superseded or deprecated functions.
 
-<!-- For the revisions included in your Portfolio, to help me understand the nature of your revisions, please denote somehow the feedback I provided you (e.g., boldface, italics, colored text) before your revisions. -->
+I revised code that used older or less clear approaches and rewrote it
+with tools like across(), if_any(), pivot_longer(), pivot_wider(),
+label_percent(), and label_dollar(). I cleaned up pipelines so each step
+has a clear purpose instead of cramming too much into one line with
+nested functions. I separated out helper functions (like creating a plot
+object first and then passing it into style_plot()) so the logic is
+easier to follow. I also fixed places where I was mixing styles, so now
+similar tasks use the same patterns across labs.
+
+This process changed how I see my own code. Not as a one-time answer,
+but as something I can change and improve. By the end of the course, I
+feel like I have a more intentional coding style that is easier for
+other people to read and update, while still being robust and correct.
 
 ## Extending My Thinking
 
-<!-- How did you extended your thinking throughout the course? How did you extend your thinking on the code examples you have provided in your portfolio? -->
+I extended my thinking by carrying ideas from early labs into work
+later on. A simple example is how I use the pipe '|>'. Over time, I
+started building full data-wrangling pipelines, read the data, clean it,
+summarize it, and then send the result straight into a plot or table. 
+
+I also extended my thinking in how I design visualizations. Early on, I
+mostly focused on getting a graph to show the right numbers. Later, I
+paid more attention to how a viewer would actually read the plot. For
+example, I started putting information about the y-axis in the subtitle
+so people don’t have to tilt their heads to read a rotated label. I
+adjusted font sizes and rotated or tilted x-axis labels to avoid
+overlapping numbers or long category names, and included descriptions of the graph for understanding.
 
 ## Peer Support & Collaboration
 
-<!-- Include an image or a description of feedback you gave that you are proud of (either in a peer review or in Discord). -->
+Here is my peer review from Lab 2. I really liked this one because I
+went in specific sections and quickly stated what each section did right
+or how it could be improved. 
 
-<!-- Include a description of how you grew as a collaborator through the weekly pair programming activities.   -->
+"Hey Haley, you did a great job on this weeks lab.
+
+Named arguments (ggplot(data = ..., mapping = aes(...))) used
+consistently. 
+
+Whitespace and line breaks: operators/comma spacing is good; every + is
+followed by a newline; readable layers. 
+
+Facet use (facet_wrap(~ species)) matches the task and helps reduce
+overplotting.
+
+Warnings suppressed properly for read_csv(..., show_col_types = FALSE),
+which helps meet the “no warnings/messages” submission rule.
+
+Axis label mix-up (scatterplot).
+
+The only issue I saw was you mapped x = weight, y = hindfoot_length, but
+labeled x = “Hindfoot length (mm)” and moved Body Weight (g) into the
+subtitle. The subtitle is supposed to take the y-axis label; here the y
+variable is hindfoot_length.
+
+Fix: put "Hindfoot length (mm)" in the subtitle and label x as "Body
+Weight (g)"."
+
+The weekly pair programming activities are in my opinion what played the
+bigest role in how I grew as a collaborator and coder. I liked the
+'coder'/'computer' structure because it forced both people to listen and
+be clear. As the 'coder', I had to explain why I was choosing a certain
+function or pipeline, not just what to type. As the 'computer', I
+practiced listening, asking  questions, and giving gentle critics when
+something didn’t quite make sense.
+
+These sessions showed me that there are many valid ways to solve the
+same problem. Often, I would have one solution in mind and my partner
+would suggest a different but equally valid approach. Seeing those
+differences helped me be more open to alternative methods and more
+flexible in my own coding. I think that growth in communication and
+collaboration is one of the main reasons my R skills improved so much
+over the course.
