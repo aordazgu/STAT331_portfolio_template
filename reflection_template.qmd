@@ -113,8 +113,11 @@ teacher_evals_clean <- teacher_evals |>
 
 missing_summary <- fish |>
   group_by(year, section, trip) |>
-  summarise(
-    across(everything(), \(x) sum(is.na(x))),
+  summarize(
+    across(
+      .cols = everything(),
+      .fns  = ~ sum(is.na(.x))
+    ),
     .groups = "drop"
   ) |>
   pivot_longer(
@@ -132,9 +135,17 @@ missing_summary <- fish |>
 # Lab 3: Question 8
 
 teacher_evals_clean |>
-  filter(if_any(ends_with("_avg"), ~ is.na(.x))) |>
+  filter(
+    if_any(
+      .cols = ends_with("_avg"),
+      .fns  = ~ is.na(.x)
+    )
+  ) |>
   summarize(
-    across(ends_with("_avg"), ~ sum(is.na(.))),
+    across(
+      .cols = ends_with("_avg"),
+      .fns  = ~ sum(is.na(.x))
+    ),
     .groups = "drop"
   ) |>
   pivot_longer(
@@ -144,12 +155,6 @@ teacher_evals_clean |>
   ) |>
   filter(num_missing > 0)
 
-teacher_evals_clean |>
-  filter(if_any(where(is.numeric), ~ is.na(.x))) |>
-  select(
-    teacher_id, course_id, question_no,
-    where(is.numeric)
-  )
 ```
 
 **WD-3: I can filter rows from a dataframe for a *variety* of data types (e.g., numeric, integer, character, factor, date).**
@@ -182,7 +187,7 @@ teacher_evals_clean <- teacher_evals |>
 income_2008_2018 <- ca_childcare |>
   filter(study_year %in% c(2008, 2018)) |>
   group_by(census_region, study_year) |>
-  summarise(
+  summarize(
     median_income_2018_dollars = median(mhi_2018, na.rm = TRUE),
     .groups = "drop"
   ) |>
@@ -469,17 +474,26 @@ people_without_interview
 # Lab 3: Question 8
 
 teacher_evals_clean |>
-  filter(if_any(everything(), is.na)) |>
+  filter(
+    if_any(
+      .cols = everything(),
+      .fns  = ~ is.na(.x)
+    )
+  ) |>
   summarize(
-    across(everything(), ~ sum(is.na(.))),
+    across(
+      .cols = everything(),
+      .fns  = ~ sum(is.na(.x))
+    ),
     .groups = "drop"
   ) |>
   pivot_longer(
-    everything(),
+    cols      = everything(),
     names_to  = "variable",
     values_to = "num_missing"
   ) |>
   filter(num_missing > 0)
+
 
 ```
 
@@ -492,7 +506,7 @@ teacher_evals_clean |>
 income_2008_2018 <- ca_childcare |>
   filter(study_year %in% c(2008, 2018)) |>
   group_by(census_region, study_year) |>
-  summarise(
+  summarize(
     median_income_2018_dollars = median(mhi_2018, na.rm = TRUE),
     .groups = "drop"
   ) |>
@@ -564,7 +578,7 @@ ggplot(
   geom_point(size = 0.75, alpha = 0.6) +
   geom_smooth(method = "loess", linewidth = 0.75, se = TRUE) +
   facet_wrap(~factor(age, levels = c("Infant", "Toddler", "Preschool"))) +
-  scale_y_continuous(labels = scales::dollar_format(prefix = "$", big.mark = ",")) +
+  scale_y_continuous(labels = scales::label_dollar(prefix = "$", big.mark = ",")) +
   scale_x_continuous(
     breaks = seq(2008, 2018, by = 2),
     limits = c(2008, 2018)
@@ -734,7 +748,7 @@ ggplot(
     ~factor(age, c("Infant", "Toddler", "Preschool"))
   ) +
   scale_y_continuous(
-    labels = scales::dollar_format(prefix = "$", big.mark = ",")
+    labels = scales::label_dollar(prefix = "$", big.mark = ",")
   ) +
   scale_x_continuous(
     breaks = seq(2008, 2018, by = 2),
@@ -817,13 +831,16 @@ ggplot(
 
 missing_summary <- fish |>
   group_by(year, section, trip) |>
-  summarise(
-    across(everything(), \(x) sum(is.na(x))),
+  summarize(
+    across(
+      .cols = everything(),
+      .fns  = ~ sum(is.na(.x))
+    ),
     .groups = "drop"
   ) |>
   pivot_longer(
-    cols = -c(year, section, trip),
-    names_to = "variable",
+    cols      = -c(year, section, trip),
+    names_to  = "variable",
     values_to = "num_missing"
   ) |>
   filter(num_missing > 0) |>
@@ -873,13 +890,16 @@ mycolors <- colorRampPalette(brewer.pal(7, "Accent"))(10)
 
 missing_summary <- fish |>
   group_by(year, section, trip) |>
-  summarise(
-    across(everything(), \(x) sum(is.na(x))),
+  summarize(
+    across(
+      .cols = everything(),
+      .fns  = ~ sum(is.na(.x))
+    ),
     .groups = "drop"
   ) |>
   pivot_longer(
-    cols = -c(year, section, trip),
-    names_to = "variable",
+    cols      = -c(year, section, trip),
+    names_to  = "variable",
     values_to = "num_missing"
   ) |>
   filter(num_missing > 0) |>
@@ -919,13 +939,16 @@ ggplot(missing_summary, aes(x = as_factor(year), y = num_missing, fill = section
 
 missing_summary <- fish |>
   group_by(year, section, trip) |>
-  summarise(
-    across(everything(), \(x) sum(is.na(x))),
+  summarize(
+    across(
+      .cols = everything(),
+      .fns  = ~ sum(is.na(.x))
+    ),
     .groups = "drop"
   ) |>
   pivot_longer(
-    cols = -c(year, section, trip),
-    names_to = "variable",
+    cols      = -c(year, section, trip),
+    names_to  = "variable",
     values_to = "num_missing"
   ) |>
   filter(num_missing > 0) |>
@@ -1076,7 +1099,7 @@ teacher_evals_clean |>
 # Lab 3: Question 8
 
 teacher_evals_clean |>
-  summarise(
+  summarize(
     across(
       .cols = everything(),
       .fns  = ~ sum(is.na(.x))
@@ -1118,7 +1141,7 @@ one_year_fail <- teacher_evals_clean |>
 income_2008_2018 <- ca_childcare |>
   filter(study_year %in% c(2008, 2018)) |>
   group_by(census_region, study_year) |>
-  summarise(
+  summarize(
     median_income_2018_dollars = median(mhi_2018, na.rm = TRUE),
     .groups = "drop"
   ) |>
@@ -1146,7 +1169,7 @@ summary_tbl |>
   mutate(
     across(
       .cols = c(center, family, gap),
-      .fns = scales::dollar
+      .fns = scales::label_dollar
     )
   ) |>
   rename(
@@ -1166,14 +1189,14 @@ summary_tbl |>
 unformatted_summary_table |>
   arrange(variable, level) |>
   mutate(
-    Percent = scales::percent(prop, accuracy = 0.1),
-    Level   = level,
-    Count   = n
+    Percent = scales::label_percent(accuracy = 0.1)(prop),
+    Level = level,
+    Count = n
   ) |>
   select(Level, Count, Percent) |>
   kbl(
     col.names = c("Level", "Count", "Percent"),
-    caption   = "Demographics of Professors at the University of Poland, Warsaw in 2020"
+    caption = "Demographics of Professors at the University of Poland, Warsaw in 2020"
   ) |>
   add_header_above(
     c(" " = 1, "Instructor Distribution" = 2)
@@ -1183,8 +1206,8 @@ unformatted_summary_table |>
     bootstrap_options = c("striped", "hover", "condensed")
   ) |>
   pack_rows("Academic Degree", 1, 4) |>
-  pack_rows("Seniority",5, 7) |>
-  pack_rows("Sex",8, 9)
+  pack_rows("Seniority", 5, 7) |>
+  pack_rows("Sex", 8, 9)
 
 ```
 
@@ -1314,7 +1337,7 @@ summary_tbl |>
     study_year = as.character(study_year),
     across(
       .cols = c(center, family, gap),
-      .fns = scales::dollar
+      .fns = scales::label_dollar
     )
   )
 ```
@@ -1422,7 +1445,10 @@ style_plot <- function(p,
   p
 }
 
-my_plot <- ggplot(penguins, mapping = aes(x = species, fill = sex)) + 
+my_plot <- ggplot(
+  data = penguins,
+  mapping = aes(x = species, fill = sex)
+) +
   geom_bar()
 
 style_plot(my_plot, 
@@ -1447,7 +1473,7 @@ summary_tbl |>
   mutate(
     across(
       .cols = c(center, family, gap),
-      .fns = scales::dollar
+      .fns = scales::label_dollar
     )
   ) |>
   rename(
@@ -1519,7 +1545,7 @@ ca_childcare <- ca_childcare |>
 # Lab 4: Challenge 4
 
 ca_childcare |>
-  summarise(
+  summarize(
     gap = median(mc_infant - mfcc_infant, na.rm = TRUE),
     .by = c(census_region, study_year)
   ) |>
@@ -1573,7 +1599,7 @@ randomBabies <- function(n_babies = 4) {
   
   babies |>
     mutate(correct = parent == baby) |>
-    summarise(n_correct = sum(correct)) |>
+    summarize(n_correct = sum(correct)) |>
     pull(n_correct)
 }
 
