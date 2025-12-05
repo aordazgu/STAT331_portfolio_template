@@ -1703,9 +1703,9 @@ At the start of the course, I mainly focused on getting my code to run.
 As the quarter went on, my thinking shifted toward writing code that is
 clear, consistent, and modern. The revisions in my portfolio show this
 change. I went back to earlier labs and updated code to match the
-standards set for the class. Use tidyverse, dplyr, forcats, and purrr;
-avoid nested functions; use consistent syntax and formatting; use
-labeled arguments; and avoid superseded or deprecated functions.
+standards set for the class. Use tidyverse, dplyr, forcats, and purrr,
+avoid nested functions, use consistent syntax and formatting, use
+labeled arguments, and avoid superseded or deprecated functions.
 
 I revised code that used older or less clear approaches and rewrote it
 with tools like across(), if_any(), pivot_longer(), pivot_wider(),
@@ -1716,7 +1716,7 @@ object first and then passing it into style_plot()) so the logic is
 easier to follow. I also fixed places where I was mixing styles, so now
 similar tasks use the same patterns across labs.
 
-This process changed how I see my own code. Not as a one-time answer,
+This process changed how I see my own code. Not as a one time answer,
 but as something I can change and improve. By the end of the course, I
 feel like I have a more intentional coding style that is easier for
 other people to read and update, while still being robust and correct.
@@ -1725,16 +1725,17 @@ other people to read and update, while still being robust and correct.
 
 I extended my thinking by carrying ideas from early labs into work
 later on. A simple example is how I use the pipe '|>'. Over time, I
-started building full data-wrangling pipelines, read the data, clean it,
+started building full data wrangling pipelines, read the data, clean it,
 summarize it, and then send the result straight into a plot or table. 
 
 I also extended my thinking in how I design visualizations. Early on, I
 mostly focused on getting a graph to show the right numbers. Later, I
 paid more attention to how a viewer would actually read the plot. For
-example, I started putting information about the y-axis in the subtitle
+example, I started putting information about the y axis in the subtitle
 so people don’t have to tilt their heads to read a rotated label. I
-adjusted font sizes and rotated or tilted x-axis labels to avoid
-overlapping numbers or long category names, and included descriptions of the graph for understanding.
+adjusted font sizes and rotated or tilted x axis labels to avoid
+overlapping numbers or long category names, and included descriptions of 
+the graph for understanding.
 
 ## Peer Support & Collaboration
 
@@ -1747,20 +1748,20 @@ or how it could be improved.
 Named arguments (ggplot(data = ..., mapping = aes(...))) used
 consistently. 
 
-Whitespace and line breaks: operators/comma spacing is good; every + is
-followed by a newline; readable layers. 
+Whitespace and line breaks: operators/comma spacing is good  every + is
+followed by a newline  readable layers. 
 
 Facet use (facet_wrap(~ species)) matches the task and helps reduce
-overplotting.
+over plotting.
 
 Warnings suppressed properly for read_csv(..., show_col_types = FALSE),
 which helps meet the “no warnings/messages” submission rule.
 
-Axis label mix-up (scatterplot).
+Axis label mix up (scatterplot).
 
 The only issue I saw was you mapped x = weight, y = hindfoot_length, but
 labeled x = “Hindfoot length (mm)” and moved Body Weight (g) into the
-subtitle. The subtitle is supposed to take the y-axis label; here the y
+subtitle. The subtitle is supposed to take the y axis label, here the y
 variable is hindfoot_length.
 
 Fix: put "Hindfoot length (mm)" in the subtitle and label x as "Body
